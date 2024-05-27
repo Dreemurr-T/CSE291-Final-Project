@@ -1,13 +1,10 @@
-
 # input an array
 # output the sorted array
 
 # RaMBO: Blackbox differentiation for ranking
 
 
-
 # use loma to implement a typical sorting function and ranking function
-# reverse //
 def bubble_sort(arr : In[Array[float]], arr_size : In[int], reverse: In[int], sorted_arr: Out[Array[float]]):
     i : int = 0
     j : int = 0
@@ -70,15 +67,3 @@ def argsort_bubble_sort(arr : In[Array[float]], arr_size : In[int], reverse: In[
         if swapped == 0:
             i = arr_size
     
-
-
-# def ranker(arr : In[Array[float]], arr_size : In[int]) -> float:
-#     i : int = 0
-#     s : float = 0.0
-#     while (i < arr_size, max_iter := 1000):
-#         s = s + arr[i]
-#         i = i + 1
-#     s_relu : float = 0.0
-#     if s > 0:
-#     	s_relu = s
-#     return s_relu
