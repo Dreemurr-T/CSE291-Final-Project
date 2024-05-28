@@ -8,6 +8,8 @@ import ctypes
 import numpy as np
 import matplotlib.pyplot as plt
 
+
+
 def test_ascending_bubble_sort(arr, lib):
     size = len(arr)
     reverse = 0
@@ -62,6 +64,29 @@ def test_stable_argsort_decreasing_order(arr, lib):
     for i in range(size):
         assert rank[i] == py_rank[i]
 
+def test_ranker_ascending_order(arr, lib):
+    size = len(arr)
+    rank = np.zeros(size, dtype=np.int32)
+    lib.ranker(arr.ctypes.data_as(ctypes.POINTER(ctypes.c_float)), size, 0, rank.ctypes.data_as(ctypes.POINTER(ctypes.c_int)))
+    ranks = []
+    for i in range(len(arr)):
+        count = sum(x < arr[i] for x in arr)
+        ranks.append(count)
+    for i in range(size):
+        assert rank[i] == ranks[i]
+
+def test_ranker_descending_order(arr, lib):
+    size = len(arr)
+    rank = np.zeros(size, dtype=np.int32)
+    lib.ranker(arr.ctypes.data_as(ctypes.POINTER(ctypes.c_float)), size, 1, rank.ctypes.data_as(ctypes.POINTER(ctypes.c_int)))
+    ranks = []
+    for i in range(len(arr)):
+        count = sum(x > arr[i] for x in arr)
+        ranks.append(count)
+    for i in range(size):
+        assert rank[i] == ranks[i]
+
+
 if __name__ == '__main__':
     with open('loma_code/differentiable_sorting.py') as f:
         structs, lib = compiler.compile(f.read(),
@@ -74,7 +99,12 @@ if __name__ == '__main__':
     test_argsort_increasing_order(arr, lib)
     test_argsort_decreasing_order(arr, lib)
 
+    arr = np.array([-0.3, 0.8, -5.0, 3.0, 1.0]).astype(np.float32)
+    test_stable_argsort_increasing_order(arr, lib)
+
     arr = np.array([3.0, 1.0, 2.0, 3.0, 3.0]).astype(np.float32)
     test_stable_argsort_increasing_order(arr, lib)
     test_stable_argsort_decreasing_order(arr, lib)
+    test_ranker_ascending_order(arr, lib)
+    test_ranker_descending_order(arr, lib)
     print('All tests passed')
