@@ -10,11 +10,15 @@ import matplotlib.pyplot as plt
 
 
 if __name__ == '__main__':
-    with open('loma_code/diff_RaMBO.py') as f:
+    # with open('loma_code/diff_RaMBO.py') as f:
+    #     _, lib = compiler.compile(f.read(),
+    #                               target='c',
+    #                               output_filename='_code/diff_RaMBO')
+    with open('loma_code/diff_RaMBO_simplified.py') as f:
         _, lib = compiler.compile(f.read(),
                                   target='c',
-                                  output_filename='_code/diff_RaMBO')
-    
+                                  output_filename='_code/diff_RaMBO_simplified')
+        
     py_score = [-0.4, -0.7, 0.3, 0.2, 0.5]
     py_dscore = [0.0, 0.0, 0.0, 0.0, 0.0]
     py_pos_score = [-0.4, -0.7, 0.3, 0.2, 0.5]
@@ -38,8 +42,10 @@ if __name__ == '__main__':
     size = ctypes.c_int(len(py_score))
     lambda_val = ctypes.c_float(0.5)
 
-    lib.call_RaMBO(score, d_score, pos_score, size, rank, pos_rank,
-                   norm_rank, pos_norm_rank, d_norm_rank, label, lambda_val)
+    # lib.call_RaMBO(score, d_score, pos_score, size, rank, pos_rank,
+    #                norm_rank, pos_norm_rank, d_norm_rank, label, lambda_val)
+
+    lib.call_RaMBO(score, d_score, size, rank, norm_rank, d_norm_rank, label, lambda_val)
 
     # py_arr = [1.0, 2.0, 3.0, 4.0, 5.0]
     # arr = (ctypes.c_float * len(py_arr))(*py_arr)

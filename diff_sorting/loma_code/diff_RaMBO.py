@@ -118,9 +118,6 @@ def call_RaMBO(score: In[Array[float]], d_score: Out[Array[float]], pos_score: I
     rank_gradient(score, pos_score, size, rank, pos_rank,
                   norm_rank, pos_norm_rank, d_norm_rank, label)
 
-    # restore norm_rank
-    # RaMBO_forward(score, size, rank, norm_rank)
-
     # a liitle reuse of variables to ease function def
     RaMBO_backward(score, d_score, pos_score, size, pos_rank,
                    norm_rank, pos_norm_rank, d_norm_rank, lambda_val)
