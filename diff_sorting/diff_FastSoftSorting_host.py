@@ -29,11 +29,11 @@ def test_fast_soft_sorting(arr, lib):
     _dsorted_arr = (ctypes.c_float * size)(*py_dsorted_arr)
 
     py_sorted_arr = np.sort(arr)
-    
+
     lib.d_fast_soft_sorting(arr, _darr, size, ctypes.byref(_dsize), reverse, ctypes.byref(_dreverse), regularization_strength, ctypes.byref(_dregularization_strength), _dsorted_arr)
     
     print(py_sorted_arr)
-    print(sorted_arr)
+    print(_darr[:size])
     
     # for i in range(size):
     #     assert sorted_arr[i] == py_sorted_arr[i]

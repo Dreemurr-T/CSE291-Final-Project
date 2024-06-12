@@ -173,43 +173,44 @@ def soft_sort_1(arr : In[Array[float]], arr_size : In[int], reverse: In[int], re
         sign = -1
 
     # initialize sorted_arr
-    array: Array[float, 20000]
+    array: Array[float, 200]
 
     i : int = 0
     j : int = 0
-    while (i < arr_size, max_iter := 20000):
+    while (i < arr_size, max_iter := 200):
         array[i] = arr[i]
         i = i + 1
 
     
-    input_w: Array[float, 20000]
+    input_w: Array[float, 200]
 
     i = 0
-    while (i < arr_size, max_iter := 20000):
+    while (i < arr_size, max_iter := 200):
         input_w[i] = (arr_size-i)/regularization_strength
         i = i + 1
     
     # multiply by sign
     i = 0
-    while (i < arr_size, max_iter := 20000):
+    while (i < arr_size, max_iter := 200):
         array[i] = array[i] * sign
         i = i + 1
     
-    permutation: Array[int, 20000]
+    permutation: Array[int, 200]
 
     i = 0
     j = 0
     tmp_index: int = 0
     swapped: int = 0
 
-    while (i < arr_size, max_iter := 20000):
+    while (i < arr_size, max_iter := 200):
         permutation[i] = i
         i = i + 1
+    
     i = 0
-    while (i < arr_size, max_iter := 20000):
+    while (i < arr_size, max_iter := 200):
         j = 0
         swapped = 0
-        while (j < arr_size - i - 1, max_iter := 20000):
+        while (j < arr_size - i - 1, max_iter := 200):
             if reverse == 1:
                 if arr[permutation[j]] < arr[permutation[j + 1]]:
                     tmp_index = permutation[j]
@@ -227,31 +228,31 @@ def soft_sort_1(arr : In[Array[float]], arr_size : In[int], reverse: In[int], re
         if swapped == 0:
             i = arr_size
 
-    s: Array[float, 20000]
-    while (i < arr_size, max_iter := 20000):
-        s[i] = array[permutation[i]]
+    # s: Array[float, 20000]
+    while (i < arr_size, max_iter := 200):
+        array[i] = array[permutation[i]]
         i = i + 1
     
-    solution: Array[float, 20000]
-    difference: Array[float, 20000]
+    solution: Array[float, 200]
+    difference: Array[float, 200]
     i = 0
-    while (i < arr_size, max_iter := 20000):
-        difference[i] = s[i] - input_w[i]
+    while (i < arr_size, max_iter := 200):
+        difference[i] = array[i] - input_w[i]
         i = i + 1
    
-    target: Array[int, 20000]
-    while (i < arr_size, max_iter := 20000):
+    target: Array[int, 200]
+    while (i < arr_size, max_iter := 200):
         target[i] = i
         i = i + 1
 
-    c: Array[float, 20000]
-    while (i < arr_size, max_iter := 20000):
+    c: Array[float, 200]
+    while (i < arr_size, max_iter := 200):
         c[i] = 1
         i = i + 1
 
-    sums: Array[float, 20000]
+    sums: Array[float, 200]
 
-    while (i < arr_size, max_iter := 20000):
+    while (i < arr_size, max_iter := 200):
         solution[i] = difference[i]
         sums[i] = difference[i]
         i = i + 1
@@ -262,7 +263,7 @@ def soft_sort_1(arr : In[Array[float]], arr_size : In[int], reverse: In[int], re
     sum_c : float
     prev_y : float
 
-    while (i < arr_size, max_iter := 20000):
+    while (i < arr_size, max_iter := 200):
         k = target[i] + 1
         if k < arr_size:
             if solution[i] <= solution[k]:
@@ -273,55 +274,53 @@ def soft_sort_1(arr : In[Array[float]], arr_size : In[int], reverse: In[int], re
                 sum_y = sum_y + sums[k]
                 sum_c = sum_c + c[k]
                 k = target[k] + 1
-                # while (k == arr_size or prev_y > solution[k], max_iter := 20000):
-                while (k == arr_size, max_iter := 20000):
+
+                while (k < arr_size, max_iter := 200):
                     prev_y = solution[k]
                     sum_y = sum_y + sums[k]
                     sum_c = sum_c + c[k]
                     k = target[k] + 1
                 
-                if k == arr_size:
-                    solution[i] = sum_y / sum_c
-                    sums[i] = sum_y
-                    c[i] = sum_c
-                    target[i] = k - 1
-                    target[k - 1] = i
-                    if i > 0:
-                        i = target[i - 1]
+                # if k == arr_size:
+                #     solution[i] = sum_y / sum_c
+                #     sums[i] = sum_y
+                #     c[i] = sum_c
+                #     target[i] = k - 1
+                #     target[k - 1] = i
+                #     if i > 0:
+                #         i = target[i - 1]
 
-                if prev_y > solution[k]:
-                    solution[i] = sum_y / sum_c
-                    sums[i] = sum_y
-                    c[i] = sum_c
-                    target[i] = k - 1
-                    target[k - 1] = i
-                    if i > 0:
-                        i = target[i - 1]
-            
-        if solution[i] > solution[k]:
-            i = k
+                # if prev_y > solution[k]:
+                #     solution[i] = sum_y / sum_c
+                #     sums[i] = sum_y
+                #     c[i] = sum_c
+                #     target[i] = k - 1
+                #     target[k - 1] = i
+                #     if i > 0:
+                #         i = target[i - 1]
+        if k < arr_size:
+            if solution[i] > solution[k]:
+                i = k
         if k == arr_size:
             i = arr_size  # break
-        
+        else:
+            i = i + 1
     
-    i = 0
-    while (i < arr_size, max_iter := 20000):
-        k = target[i] + 1
-        j = i + 1
-        while (j < k, max_iter := 20000):
-            solution[j] = solution[i]
-            j = j + 1
-        i = k
+    # i = 0
+    # while (i < arr_size, max_iter := 200):
+    #     k = target[i] + 1
+    #     j = i + 1
+    #     while (j < k, max_iter := 200):
+    #         solution[j] = solution[i]
+    #         j = j + 1
+    #     i = k
 
-    i = 0
-    # calculate result
-    while (i < arr_size, max_iter := 20000):
-        sorted_arr[i] = (input_w[i] - solution[i]) * sign
-        i = i + 1
+    # i = 0
+    # # calculate result
+    # while (i < arr_size, max_iter := 200):
+    #     sorted_arr[i] = (input_w[i] - solution[i]) * sign
+    #     i = i + 1
 
-# d_fast_soft_sorting = fwd_diff(soft_sort)
+
 # d_fast_soft_sorting = fwd_diff(soft_sort_1)
 d_fast_soft_sorting = rev_diff(soft_sort_1)
-
-        
-# d_fast_soft_sorting = rev_diff(soft_sort)
