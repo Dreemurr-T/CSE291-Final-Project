@@ -328,6 +328,7 @@ class TypeInferencer(irmutator.IRMutator):
                     call_arg = args[i]
 
                 if call_arg.t != f_arg.t:
+                    print(call_arg.t, f_arg.t)
                     raise error.CallTypeMismatch(call)
             inf_type = ret_type
 
