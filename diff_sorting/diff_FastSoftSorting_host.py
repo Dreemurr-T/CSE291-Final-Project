@@ -9,24 +9,29 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def test_fast_soft_sorting(arr, structs, lib):
+def test_fast_soft_sorting(arr, lib):
     size = len(arr)
     reverse = 0
     sorted_arr = np.zeros(size, dtype=np.float32)
-    permutation = np.zeros(size, dtype=np.float32)
+    # permutation = np.zeros(size, dtype=np.float32)
 
+    arr = (ctypes.c_float * size)(*arr)
+    py_darr = [0]*size
+    _darr = (ctypes.c_float * size)(*py_darr)
+
+    _dsize = ctypes.c_int(0)
+    _dreverse = ctypes.c_int(0)
 
     regularization_strength = 1.0
+    _dregularization_strength = ctypes.c_float(0)
 
-    _dfloat = structs['_dfloat']
-    x = _dfloat(0.3, 0.4)
-    i = 1
-    j = _dfloat(3.5, 0.5)
-    py_y = [_dfloat(0, 0)] * 7
-    y = (_dfloat * len(py_y))(*py_y)
+    py_dsorted_arr = [0]*size
+    _dsorted_arr = (ctypes.c_float * size)(*py_dsorted_arr)
 
-    lib.d_fast_soft_sorting(arr.ctypes.data_as(ctypes.POINTER(ctypes.c_float)), size, reverse, regularization_strength, sorted_arr.ctypes.data_as(ctypes.POINTER(ctypes.c_float)), permutation.ctypes.data_as(ctypes.POINTER(ctypes.c_int)))
     py_sorted_arr = np.sort(arr)
+    
+    lib.d_fast_soft_sorting(arr, _darr, size, ctypes.byref(_dsize), reverse, ctypes.byref(_dreverse), regularization_strength, ctypes.byref(_dregularization_strength), _dsorted_arr)
+    
     print(py_sorted_arr)
     print(sorted_arr)
     

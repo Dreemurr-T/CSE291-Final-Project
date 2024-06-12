@@ -99,7 +99,6 @@ def reverse_diff(diff_func_id : str,
                 return stmts
             case _:
                 assert False
-
     def accum_deriv(target, deriv, overwrite):
         match target.t:
             case loma_ir.Int():
