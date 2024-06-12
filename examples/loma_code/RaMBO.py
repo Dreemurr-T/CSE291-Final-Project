@@ -75,4 +75,4 @@ def RaMBO_backward(r : In[Rank], lambda_val : In[float]) -> Array[float, 1000]:
     
     return gradient_out
 
-# d_RaMBO_backward = fwd_diff(RaMBO_backward)
+d_RaMBO_backward = rev_diff(RaMBO_backward)
