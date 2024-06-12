@@ -31,7 +31,7 @@ def argsort_bubble_sort(arr : In[Array[float]], arr_size : In[int], reverse: In[
 
 
 # input_s, input_w, do l2 regularization
-def isotonic(input_s: In[Array[float]], input_w: In[Array[float]], arr_size: In[int], solution: Out[Array[float]]):
+def isotonic_l2(input_s: In[Array[float]], input_w: In[Array[float]], arr_size: In[int], solution: Out[Array[float]]):
 
     difference: Array[float, 20000]
     i : int = 0
@@ -64,28 +64,39 @@ def isotonic(input_s: In[Array[float]], input_w: In[Array[float]], arr_size: In[
 
     while (i < arr_size, max_iter := 20000):
         k = target[i] + 1
-        if k < arr_size and solution[i] <= solution[k]:
-            sum_y = sums[i]
-            sum_c = c[i]
+        if k < arr_size:
+            if solution[i] <= solution[k]:
+                sum_y = sums[i]
+                sum_c = c[i]
 
-            prev_y = solution[k]
-            sum_y = sum_y + sums[k]
-            sum_c = sum_c + c[k]
-            k = target[k] + 1
-            while (k == arr_size or prev_y > solution[k], max_iter := 20000):
                 prev_y = solution[k]
                 sum_y = sum_y + sums[k]
                 sum_c = sum_c + c[k]
                 k = target[k] + 1
-            
-            if k == arr_size or prev_y > solution[k]:
-                solution[i] = sum_y / sum_c
-                sums[i] = sum_y
-                c[i] = sum_c
-                target[i] = k - 1
-                target[k - 1] = i
-                if i > 0:
-                    i = target[i - 1]
+                # while (k == arr_size or prev_y > solution[k], max_iter := 20000):
+                while (k == arr_size, max_iter := 20000):
+                    prev_y = solution[k]
+                    sum_y = sum_y + sums[k]
+                    sum_c = sum_c + c[k]
+                    k = target[k] + 1
+                
+                if k == arr_size:
+                    solution[i] = sum_y / sum_c
+                    sums[i] = sum_y
+                    c[i] = sum_c
+                    target[i] = k - 1
+                    target[k - 1] = i
+                    if i > 0:
+                        i = target[i - 1]
+
+                if prev_y > solution[k]:
+                    solution[i] = sum_y / sum_c
+                    sums[i] = sum_y
+                    c[i] = sum_c
+                    target[i] = k - 1
+                    target[k - 1] = i
+                    if i > 0:
+                        i = target[i - 1]
             
         if solution[i] > solution[k]:
             i = k
@@ -136,20 +147,21 @@ def soft_sort(arr : In[Array[float]], arr_size : In[int], reverse: In[int], regu
     
     # permutation: Array[int, 20000]
 
-    # argsort_bubble_sort(array, arr_size, 1, permutation)
+    argsort_bubble_sort(array, arr_size, 1, permutation)
 
-    # s: Array[float, 20000]
-    # while (i < arr_size, max_iter := 20000):
-    #     s[i] = array[permutation[i]]
-    #     i = i + 1
+    s: Array[float, 20000]
+    while (i < arr_size, max_iter := 20000):
+        s[i] = array[permutation[i]]
+        i = i + 1
     
-    # solution: Array[float, 20000]
-    # isotonic_l2(s, input_w, arr_size, solution)
+    solution: Array[float, 20000]
+    isotonic_l2(s, input_w, arr_size, solution)
 
-    # # calculate result
-    # while (i < arr_size, max_iter := 20000):
-    #     sorted_arr[i] = (input_w[i] - solution[i]) * sign
-    #     i = i + 1
+    # calculate result
+    while (i < arr_size, max_iter := 20000):
+        sorted_arr[i] = (input_w[i] - solution[i]) * sign
+        i = i + 1
 
 
-d_fast_soft_sorting = fwd_diff(soft_sort)
+# d_fast_soft_sorting = fwd_diff(soft_sort)
+d_fast_soft_sorting = rev_diff(soft_sort)
