@@ -75,8 +75,8 @@ def train(config):
         root_dir='dataset/CUB_200_2011', train=False)
 
     train_dataloader = DataLoader(
-        CUB200_train_dataset, batch_size=config['batch_size'], shuffle=True, num_workers=4, collate_fn=collate_fn)
-    test_loader = DataLoader(CUB200_test_dataset, shuffle=False, num_workers=4)
+        CUB200_train_dataset, batch_size=config['batch_size'], shuffle=True, num_workers=8, collate_fn=collate_fn)
+    test_loader = DataLoader(CUB200_test_dataset, shuffle=False, num_workers=8)
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     model = RaMBO_backbone(embedding_dim=512).to(device)
@@ -97,6 +97,8 @@ def train(config):
     if not os.path.exists("checkpoint"):
         os.makedirs("checkpoint")
 
+    record_file = f"CUB200_{config['batch_size']}.txt"
+
     best_recall = 0.0
     stop_count = 0
 
@@ -109,8 +111,11 @@ def train(config):
         save_path = os.path.join("checkpoint", f"CUB200_epoch_{epoch+1}.pth")
         torch.save(model.state_dict(), save_path)
 
-        best_save_path = os.path.join("checkpoint", "best_model.pth")
+        best_save_path = os.path.join("checkpoint", "CUB200_best_model.pth")
         recall = eval(model, test_loader, device, 1)
+
+        with open(record_file, 'a') as file:
+            file.write(f"Epoch {epoch+1}: Recall@1 = {recall:.4f}\n")
 
         if recall >= best_recall:
             stop_count = 0
@@ -120,6 +125,7 @@ def train(config):
             stop_count += 1
             if stop_count > config['early_stop']:
                 print(f"Stopping at Epoch: {epoch+1}")
+                break
 
         print(f"Epoch: {epoch+1} Recall@1: {recall:.4f}, Best Recall@1: {best_recall:.4f}")
 
