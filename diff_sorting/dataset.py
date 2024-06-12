@@ -1,103 +1,86 @@
 import os
+import pandas as pd
 from PIL import Image
-from torch.utils.data import Dataset, DataLoader
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-import torchvision.transforms as transforms
-import random
+from torchvision import transforms
+from torch.utils.data import Dataset
 
-class SOPDataset(Dataset):
-    def __init__(self, root_dir, transform=None):
+
+# Define the transform
+train_transform = transforms.Compose([
+    transforms.Resize((256, 256)),  # Resize to 256x256
+    transforms.RandomCrop((224, 224)),  # Random crop to 224x224
+    transforms.RandomHorizontalFlip(),  # Random horizontal flip
+    transforms.ToTensor(),  # Convert the image to a tensor
+    # Normalize using ImageNet mean and std
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+])
+
+test_transform = transforms.Compose([
+    transforms.Resize((256, 256)),  # Resize to 256x256
+    transforms.CenterCrop((224, 224)),  # Random crop to 224x224
+    transforms.ToTensor(),  # Convert the image to a tensor
+    # Normalize using ImageNet mean and std
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+])
+
+
+class CUB200Dataset(Dataset):
+    def __init__(self, root_dir, train=True):
         self.root_dir = root_dir
-        self.transform = transform
-        self.data = self._construct_data_dict()
+        self.train = train
+        if self.train:
+            self.transform = train_transform
+        else:
+            self.transform = test_transform
 
-    def _construct_data_dict(self):
-        data = {}
-        # Assume the dataset file is structured as: image_path, class_id, super_label
-        with open(os.path.join(self.root_dir, 'Ebay_train.txt'), 'r') as f:
-            lines = f.readlines()[1:]  # Skip the header
-            for line in lines:
-                parts = line.strip().split()
-                img_path = os.path.join(self.root_dir, parts[3])
-                class_id = int(parts[1])
-                super_label = int(parts[2])
-                sample = (img_path, class_id)
-                if super_label not in data:
-                    data[super_label] = []
-                data[super_label].append(sample)
-        return data
+        # Load the image paths and labels
+        self.image_paths, self.labels = self._load_metadata()
+        self.class_to_indices = self._group_by_class()
+
+    def _load_metadata(self):
+        images_file = os.path.join(self.root_dir, 'images.txt')
+        labels_file = os.path.join(self.root_dir, 'image_class_labels.txt')
+        train_test_file = os.path.join(self.root_dir, 'train_test_split.txt')
+
+        # Load data from files
+        images = pd.read_csv(images_file, sep=' ', header=None, names=[
+                             'img_id', 'filepath'])
+        labels = pd.read_csv(labels_file, sep=' ',
+                             header=None, names=['img_id', 'label'])
+        train_test_split = pd.read_csv(
+            train_test_file, sep=' ', header=None, names=['img_id', 'is_train'])
+
+        # Merge dataframes on img_id
+        data = images.merge(labels, on='img_id')
+        data = data.merge(train_test_split, on='img_id')
+
+        if self.train:
+            data = data[data['is_train'] == 1]
+        else:
+            data = data[data['is_train'] == 0]
+
+        image_paths = data['filepath'].values
+        labels = data['label'].values - 1  # Labels should start from 0
+
+        return image_paths, labels
+    
+    def _group_by_class(self):
+        class_to_indices = {}
+        for idx, label in enumerate(self.labels):
+            if label not in class_to_indices:
+                class_to_indices[label] = []
+            class_to_indices[label].append(idx)
+        return class_to_indices
 
     def __len__(self):
-        return sum(len(samples) for samples in self.data.values())
+        return len(self.image_paths)
 
     def __getitem__(self, idx):
-        # This method won't be directly used as we will prepare batches manually
-        pass
-
-    def get_samples(self, super_label, num_samples):
-        samples = random.sample(self.data[super_label], num_samples)
-        images, labels = zip(*[(self._load_image(img_path), label) for img_path, label in samples])
-        return images, labels
-
-    def _load_image(self, img_path):
+        img_path = os.path.join(self.root_dir, 'images', self.image_paths[idx])
         image = Image.open(img_path).convert('RGB')
+        label = self.labels[idx]
+
         if self.transform:
             image = self.transform(image)
-        return image
 
-class SuperLabelBatchSampler:
-    def __init__(self, dataset, num_batches_per_pair=10, samples_per_class=4):
-        self.dataset = dataset
-        self.super_labels = list(dataset.data.keys())
-        self.num_batches_per_pair = num_batches_per_pair
-        self.samples_per_class = samples_per_class
-
-    def __iter__(self):
-        while True:
-            # Randomly select a pair of super-labels
-            super_label_pair = random.sample(self.super_labels, 2)
-            for _ in range(self.num_batches_per_pair):
-                batch_images = []
-                batch_labels = []
-                for super_label in super_label_pair:
-                    images, labels = self.dataset.get_samples(super_label, self.samples_per_class)
-                    batch_images.extend(images)
-                    batch_labels.extend(labels)
-                yield batch_images, batch_labels
-
-    def __len__(self):
-        return 1000000  # Infinite iterator, arbitrary large number
-
-def collate_fn(batch):
-    batch_images, batch_labels = zip(*batch)
-    images = torch.stack([item for sublist in batch_images for item in sublist])
-    labels = torch.tensor([item for sublist in batch_labels for item in sublist])
-    return images, labels
-
-if __name__ == "__main__":
-    # Define the root directory of the SOP dataset
-    root_dir = 'dataset/Stanford_Online_Products'
-
-    # Define the transform
-    transform = transforms.Compose([
-        transforms.Resize((224, 224)),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-    ])
-
-    # Instantiate the dataset
-    dataset = SOPDataset(root_dir=root_dir, transform=transform)
-
-    # Instantiate the batch sampler
-    batch_sampler = SuperLabelBatchSampler(dataset)
-
-    # Instantiate the DataLoader
-    dataloader = DataLoader(dataset, batch_sampler=batch_sampler, collate_fn=collate_fn, batch_size=1)
-
-    # Get a single batch
-    for images, labels in dataloader:
-        print("Images shape:", images.shape)
-        print("Labels shape:", labels.shape)
-        break  # Just to demonstrate
+        return image, label

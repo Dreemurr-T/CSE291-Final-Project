@@ -49,6 +49,7 @@ def recall_loss(norm_rank: In[Array[float]], pos_norm_rank: Out[Array[float]], s
         # denormalize ranks
         query_rank[i] = query_rank[i] * size
         loss = loss + log(1.0 + log(1.0 + query_rank[i] * label[i]))
+        
         denominator = denominator + label[i]
         i = i + 1
 
@@ -61,7 +62,7 @@ d_rev_recall_loss = rev_diff(recall_loss)
 
 
 def rank_gradient(score: In[Array[float]], size: In[int], rank: In[Array[int]],
-                  norm_rank: In[Array[float]], d_norm_rank: Out[Array[float]], label: In[Array[int]]):
+                  norm_rank: In[Array[float]], d_norm_rank: Out[Array[float]], label: In[Array[int]], loss_record: Out[float]):
 
     i: int = 0
     deviation: float
@@ -92,6 +93,7 @@ def rank_gradient(score: In[Array[float]], size: In[int], rank: In[Array[int]],
 
     dout: float = size
 
+    loss_record = loss_record + recall_loss(norm_rank, pos_norm_rank, size, label)
     d_rev_recall_loss(norm_rank, d_norm_rank, pos_norm_rank, size, label, dout)
 
 
@@ -119,8 +121,8 @@ def RaMBO_backward(score: In[Array[float]], d_score: Out[Array[float]],
 
 # wrap of the whole process
 def call_RaMBO(score: In[Array[float]], d_score: Out[Array[float]], size: In[int], rank: In[Array[int]], 
-               norm_rank: In[Array[float]], d_norm_rank: Out[Array[float]], label: In[Array[int]], lambda_val: In[float]):
-    rank_gradient(score, size, rank, norm_rank, d_norm_rank, label)
+               norm_rank: In[Array[float]], d_norm_rank: Out[Array[float]], label: In[Array[int]], lambda_val: In[float], loss_record: Out[float]):
+    rank_gradient(score, size, rank, norm_rank, d_norm_rank, label, loss_record)
 
     # a liitle reuse of variables to ease function def
     RaMBO_backward(score, d_score, size, norm_rank, d_norm_rank, lambda_val)
