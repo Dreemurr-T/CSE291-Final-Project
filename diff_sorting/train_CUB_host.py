@@ -64,8 +64,8 @@ def trainer(epoch, train_dataloader, device, model, config, optimizer):
 
         end_time = time.time()
 
-        print("Epoch: %d Iteration: %d Elapsed time: %fs Loss: %f" % (
-            epoch, iter, end_time-start_time, loss_record.value / scores.shape[0]))
+        print("Epoch: %d / %d Iteration: %d / %d Elapsed time: %fs Loss: %f" % (
+            epoch+1, config['epoch'], iter+1, len(train_dataloader), end_time-start_time, loss_record.value / scores.shape[0]))
 
 
 def train(config):
@@ -98,6 +98,7 @@ def train(config):
         os.makedirs("checkpoint")
 
     best_recall = 0.0
+    stop_count = 0
 
     for epoch in range(config['epoch']):
         model = model.train()
@@ -111,9 +112,14 @@ def train(config):
         best_save_path = os.path.join("checkpoint", "best_model.pth")
         recall = eval(model, test_loader, device, 1)
 
-        if recall > best_recall:
+        if recall >= best_recall:
+            stop_count = 0
             best_recall = recall
             torch.save(model.state_dict(), best_save_path)
+        else:
+            stop_count += 1
+            if stop_count > config['early_stop']:
+                print(f"Stopping at Epoch: {epoch+1}")
 
         print(f"Epoch: {epoch+1} Recall@1: {recall:.4f}, Best Recall@1: {best_recall:.4f}")
 

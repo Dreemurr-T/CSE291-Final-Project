@@ -1,5 +1,6 @@
-batch_size: 64
+batch_size: 128
 lambda: 0.2
 learning_rate: 0.000005
 weight_decay: 0.0004
 epoch: 80
+early_stop: 5
