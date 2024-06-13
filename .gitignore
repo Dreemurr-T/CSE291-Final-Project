@@ -44,3 +44,10 @@ build/
 __pycache__/
 _asdl/
 _code/
+
+test_argsort.py
+diff_sorting/dataset
+*tar.gz
+*tgz
+*zip
+*.pth

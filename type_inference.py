@@ -326,9 +326,12 @@ class TypeInferencer(irmutator.IRMutator):
                     args[i] = loma_ir.Call('float2int',
                         [args[i]], lineno = args[i].lineno, t = loma_ir.Int())
                     call_arg = args[i]
-
-                if call_arg.t != f_arg.t:
-                    raise error.CallTypeMismatch(call)
+                match f_arg.t:
+                    case loma_ir.Array():
+                        pass
+                    case _:
+                        if call_arg.t != f_arg.t:
+                            raise error.CallTypeMismatch(call)
             inf_type = ret_type
 
         return loma_ir.Call(\
