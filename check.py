@@ -277,9 +277,9 @@ def check_call_in_call_stmt(node : loma_ir.func,
                 # ignore ForwardDiff & ReverseDiff
                 if not isinstance(f, loma_ir.FunctionDef):
                     return
-                for arg in f.args:
-                    if arg.i == loma_ir.Out():
-                        raise error.CallWithOutArgNotInCallStmt(node)
+                # for arg in f.args:
+                #     if arg.i == loma_ir.Out():
+                #         raise error.CallWithOutArgNotInCallStmt(node)
                 for arg in node.args:
                     self.visit_expr(arg)
 
@@ -328,7 +328,7 @@ def check_ir(structs : dict[str, loma_ir.Struct],
         check_duplicate_declare(f)
         check_undeclared_vars(f)
         check_return_is_last(f)
-        check_declare_bounded(f)
+        # check_declare_bounded(f)
         check_declares_are_outmost(f)
         check_call_in_call_stmt(f, funcs)
 

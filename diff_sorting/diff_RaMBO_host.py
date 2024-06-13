@@ -38,15 +38,18 @@ if __name__ == '__main__':
     pos_norm_rank = (ctypes.c_float * len(py_norm_rank))(*py_pos_norm_rank)
     d_norm_rank = (ctypes.c_float * len(py_norm_rank))(*py_d_norm_rank)
     label = (ctypes.c_int * len(py_label))(*py_label)
+    loss_record = ctypes.c_float(0.0)
 
     size = ctypes.c_int(len(py_score))
-    lambda_val = ctypes.c_float(0.5)
+    lambda_val = ctypes.c_float(4.0)
 
     # lib.call_RaMBO(score, d_score, pos_score, size, rank, pos_rank,
     #                norm_rank, pos_norm_rank, d_norm_rank, label, lambda_val)
 
-    lib.call_RaMBO(score, d_score, size, rank, norm_rank, d_norm_rank, label, lambda_val)
+    lib.call_RaMBO(score, d_score, size, rank, norm_rank, d_norm_rank, label, lambda_val, loss_record)
 
     # py_arr = [1.0, 2.0, 3.0, 4.0, 5.0]
     # arr = (ctypes.c_float * len(py_arr))(*py_arr)
+    print(d_norm_rank[:5])
     print(d_score[:5])
+    print(loss_record)
