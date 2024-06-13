@@ -1,6 +1,6 @@
+dataset: CUB200
 batch_size: 64
 lambda: 0.2
 learning_rate: 0.000005
 weight_decay: 0.0004
-epoch: 150
-early_stop: 5
+epoch: 80

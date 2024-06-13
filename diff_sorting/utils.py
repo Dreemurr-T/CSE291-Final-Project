@@ -54,4 +54,7 @@ def recall_at_k(embeddings, labels, k=1):
 
 
 def lr_lambda(epoch):
-    return 0.5 ** (epoch / 30)
+    if epoch < 35:
+        return 1.0
+    else:
+        return 0.3  # Drop learning rate to 30% of the original
