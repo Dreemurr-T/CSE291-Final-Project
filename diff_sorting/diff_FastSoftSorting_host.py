@@ -39,8 +39,7 @@ def test_fast_soft_sorting(arr, lib):
     # print(py_sorted_arr)
     print(_darr[:size])
     
-    # for i in range(size):
-    #     assert sorted_arr[i] == py_sorted_arr[i]
+
 
 
 if __name__ == '__main__':
@@ -52,4 +51,3 @@ if __name__ == '__main__':
 
     arr = np.array([64.2, 34.5, 25.5, 12.22, 11.0, 90.1]).astype(np.float32)
     test_fast_soft_sorting(arr, lib)
-# void d_fast_soft_sorting(float* arr, float* _darr_Y3Xu1c, int arr_size, int* _darr_size_gIGLAg, int reverse, int* _dreverse_7487GL, float regularization_strength, float* _dregularization_strength_RcprPU, float* sorted_arr) 

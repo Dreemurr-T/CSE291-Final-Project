@@ -69,4 +69,8 @@ class DiffSortFunction(torch.autograd.Function):
 
         lib.d_fast_soft_sorting(arr, _darr, size, ctypes.byref(_dsize), reverse, ctypes.byref(_dreverse), regularization_strength, ctypes.byref(_dregularization_strength), _dsorted_arr)
         _darr = torch.tensor(_darr[:size], dtype=torch.float32).to(device)
+        isnan = torch.isnan(_darr)
+        has_nan = torch.any(isnan)
+        if has_nan:
+            _darr[isnan] = 0.1
         return _darr, None, None
