@@ -356,7 +356,7 @@ def forward_diff(diff_func_id : str,
                 self.mutate_expr(node.left),
                 self.mutate_expr(node.right),
                 lineno = node.lineno,
-                t = node.t)
+                t = node.t), None
 
         def mutate_or(self, node):
             return loma_ir.BinaryOp(\
@@ -364,7 +364,7 @@ def forward_diff(diff_func_id : str,
                 self.mutate_expr(node.left),
                 self.mutate_expr(node.right),
                 lineno = node.lineno,
-                t = node.t)
+                t = node.t), None
 
         def mutate_call(self, node):
             new_args = [self.mutate_expr(arg) for arg in node.args]
