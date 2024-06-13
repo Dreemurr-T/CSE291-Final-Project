@@ -43,7 +43,7 @@ def test_fast_soft_sorting(arr, lib):
 
 
 if __name__ == '__main__':
-    with open('loma_code/FastSoftSorting.py') as f:
+    with open('loma_code/diff_FastSoftSorting.py') as f:
         structs, lib = compiler.compile(f.read(),
                                   target='c',
                                   output_filename='_code/fast_soft_sorting')

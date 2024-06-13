@@ -15,7 +15,7 @@ import torch
 from utils import *
 
 
-with open('loma_code/diff_RaMBO_simplified.py') as f:
+with open('../diff_sorting/loma_code/diff_RaMBO_simplified.py') as f:
     _, lib = compiler.compile(f.read(),
                               target='c',
                               output_filename='_code/diff_RaMBO_simplified')

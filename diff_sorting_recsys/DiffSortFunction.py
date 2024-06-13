@@ -11,7 +11,7 @@ import numpy as np
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 # Compile loma code
-with open('loma_code/FastSoftSorting.py') as f:
+with open('../diff_sorting/loma_code/diff_FastSoftSorting.py') as f:
     structs, lib = compiler.compile(f.read(),
                                 target='c',
                                 output_filename='_code/fast_soft_sorting')
