@@ -14,7 +14,7 @@ num_users = user_ids.max() + 1
 num_items = item_ids.max() + 1
 embedding_dim = 32
 
-model = NeuralCollaborativeFiltering(num_users, num_items, embedding_dim)
+model = NeuralCollaborativeFiltering(num_users, num_items, embedding_dim, regularization_strength=0.1)
 criterion = nn.MSELoss()
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 
@@ -23,7 +23,7 @@ batch_size = 64
 train_data_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 test_data_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
-num_epochs = 20
+num_epochs = 40
 for epoch in range(num_epochs):
     model.train()
     total_loss = 0

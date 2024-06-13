@@ -36,4 +36,4 @@ def generate_sample_data(num_users, num_items, num_ratings, filename):
     print(f"Sample data saved to {filename}")
 
 # Generate and save the data
-generate_sample_data(200, 200, 1500, 'sample_data.csv')
+generate_sample_data(1000, 1000, 30000, 'sample_data.csv')
