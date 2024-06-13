@@ -13,6 +13,7 @@ def test_fast_soft_sorting(arr, lib):
     size = len(arr)
     reverse = 0
     sorted_arr = np.zeros(size, dtype=np.float32)
+    sorted_arr = (ctypes.c_float * size)(*sorted_arr)
     # permutation = np.zeros(size, dtype=np.float32)
 
     arr = (ctypes.c_float * size)(*arr)
@@ -22,17 +23,20 @@ def test_fast_soft_sorting(arr, lib):
     _dsize = ctypes.c_int(0)
     _dreverse = ctypes.c_int(0)
 
-    regularization_strength = 1.0
+    regularization_strength = 0.01
     _dregularization_strength = ctypes.c_float(0)
 
-    py_dsorted_arr = [0]*size
+    py_dsorted_arr = [0.1]*size
     _dsorted_arr = (ctypes.c_float * size)(*py_dsorted_arr)
 
     py_sorted_arr = np.sort(arr)
 
+    lib.soft_sort(arr, size, reverse, regularization_strength, sorted_arr)
+    print(sorted_arr[:size])
+
     lib.d_fast_soft_sorting(arr, _darr, size, ctypes.byref(_dsize), reverse, ctypes.byref(_dreverse), regularization_strength, ctypes.byref(_dregularization_strength), _dsorted_arr)
     
-    print(py_sorted_arr)
+    # print(py_sorted_arr)
     print(_darr[:size])
     
     # for i in range(size):
@@ -48,3 +52,4 @@ if __name__ == '__main__':
 
     arr = np.array([64.2, 34.5, 25.5, 12.22, 11.0, 90.1]).astype(np.float32)
     test_fast_soft_sorting(arr, lib)
+# void d_fast_soft_sorting(float* arr, float* _darr_Y3Xu1c, int arr_size, int* _darr_size_gIGLAg, int reverse, int* _dreverse_7487GL, float regularization_strength, float* _dregularization_strength_RcprPU, float* sorted_arr) 
