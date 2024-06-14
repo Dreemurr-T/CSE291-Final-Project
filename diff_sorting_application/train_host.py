@@ -9,7 +9,7 @@ import compiler
 import time
 import torch.optim as optim
 from model import RaMBO_backbone
-from dataset import CUB200Dataset
+from dataset import CUB200Dataset, SOPDataset
 from torch.utils.data import DataLoader
 import torch
 from utils import *
@@ -75,16 +75,15 @@ def train(config):
         test_dataset = CUB200Dataset(
             root_dir='dataset/CUB_200_2011', train=False)
         
-        train_dataloader = DataLoader(
-            train_dataset, batch_size=config['batch_size'], shuffle=True, num_workers=8, collate_fn=collate_fn)
-        test_loader = DataLoader(test_dataset, shuffle=False, num_workers=8)
     elif config['dataset'] == "SOP":
-        train_dataset = CUB200Dataset(
-            root_dir='dataset/CUB_200_2011', train=True)
-        test_dataset = CUB200Dataset(
-            root_dir='dataset/CUB_200_2011', train=False)
-        
+        train_dataset = SOPDataset(
+            root_dir='dataset/Stanford_Online_Products', train=True)
+        test_dataset = SOPDataset(
+            root_dir='dataset/Stanford_Online_Products', train=False)
     
+    train_dataloader = DataLoader(
+            train_dataset, batch_size=config['batch_size'], shuffle=False, num_workers=8, collate_fn=collate_fn)
+    test_dataloader = DataLoader(test_dataset, shuffle=False, num_workers=8)
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     model = RaMBO_backbone(embedding_dim=512).to(device)
@@ -119,7 +118,7 @@ def train(config):
         torch.save(model.state_dict(), save_path)
 
         best_save_path = os.path.join(f"checkpoint/{config['dataset']}", "best_model.pth")
-        recall = eval(model, test_loader, device, 1)
+        recall = evaluate_recall_at_k_faiss(model, test_dataloader, device, k=1)
 
         with open(record_file, 'a') as file:
             file.write(f"Epoch {epoch+1}: Recall@1 = {recall:.4f}\n")
@@ -131,14 +130,14 @@ def train(config):
         print(f"Epoch: {epoch+1} Recall@1: {recall:.4f}, Best Recall@1: {best_recall:.4f}")
 
 
-def eval(model, test_loader, device, k=1):
-    # Extract embeddings and labels from the test set
-    embeddings, labels = extract_embeddings(model, test_loader, device)
+# def eval(model, test_loader, device, k=1):
+#     # Extract embeddings and labels from the test set
+#     embeddings, labels = extract_embeddings(model, test_loader, device)
 
-    # Compute Recall@1
-    recall_at_1 = recall_at_k(embeddings, labels, k)
+#     # Compute Recall@1
+#     recall_at_1 = recall_at_k(embeddings, labels, k)
 
-    return recall_at_1
+#     return recall_at_1
 
 
 if __name__ == '__main__':

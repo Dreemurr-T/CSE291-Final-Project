@@ -84,3 +84,42 @@ class CUB200Dataset(Dataset):
             image = self.transform(image)
 
         return image, label
+
+
+class SOPDataset(Dataset):
+    def __init__(self, root_dir, train=True):
+        self.root_dir = root_dir
+        self.train = train
+        if self.train:
+            self.transform = train_transform
+        else:
+            self.transform = test_transform
+        self.image_paths, self.labels = self._load_metadata()
+
+    def _load_metadata(self):
+        if self.train:
+            metadata_file = os.path.join(self.root_dir, 'Ebay_train.txt')
+        else:
+            metadata_file = os.path.join(self.root_dir, 'Ebay_test.txt')
+
+        # Read the metadata file
+        data = pd.read_csv(metadata_file, sep=' ', header=0)
+
+        # Extract image paths and labels
+        image_paths = data['path'].values
+        labels = data['class_id'].values - 1  # Labels should start from 0
+
+        return image_paths, labels
+
+    def __len__(self):
+        return len(self.image_paths)
+
+    def __getitem__(self, idx):
+        img_path = os.path.join(self.root_dir, self.image_paths[idx])
+        image = Image.open(img_path).convert('RGB')
+        label = self.labels[idx]
+
+        if self.transform:
+            image = self.transform(image)
+
+        return image, label
