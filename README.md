@@ -8,7 +8,7 @@ Student: Haoyuan Tian, Ruohan Zhang
 - FastSoftSorting : `diff_sorting/loma_code/diff_FastSoftSorting.py`
 
 ## Applications for RaMBO
-- Image classification: `diff_sorting_application/`
+- Image retrieval: `diff_sorting_application/`
 
 ## Applications for FastSoftSorting
 - Regression: `diff_sorting_recsys/train_regression_model.py`

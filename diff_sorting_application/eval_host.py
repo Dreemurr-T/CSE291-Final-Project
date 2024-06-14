@@ -39,7 +39,7 @@ def eval(dataset, model, device):
 
 
 if __name__ == '__main__':
-    dataset = "SOP"          # change dataset here for different evaluation settings
+    dataset = "CUB200"          # change dataset here for different evaluation settings
     model, device = load_model(dataset)
     recalls = eval(dataset, model, device)
 
