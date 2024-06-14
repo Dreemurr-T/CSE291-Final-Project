@@ -1,6 +1,6 @@
-dataset: CUB200
+dataset: SOP
 batch_size: 64
-lambda: 0.2
-learning_rate: 0.000005
+lambda: 4.0
+learning_rate: 0.000003
 weight_decay: 0.0004
 epoch: 80

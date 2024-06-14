@@ -1,7 +1,7 @@
 import torch
 import numpy as np
 import yaml
-from sklearn.metrics.pairwise import cosine_distances
+import faiss
 
 
 def get_config(config_path):
@@ -42,15 +42,30 @@ def extract_embeddings(model, dataloader, device):
     labels = np.hstack(labels)
     return embeddings, labels
 
-def recall_at_k(embeddings, labels, k=1):
-    distances = cosine_distances(embeddings)
-    np.fill_diagonal(distances, np.inf)
-    nearest_neighbors = np.argpartition(distances, k, axis=1)[:, :k]
-    recalls = 0
+
+# Evaluate Recall@k using Faiss for efficient nearest neighbor search
+def evaluate_recall_at_k_faiss(model, dataloader, device, k=1):
+    model.eval()
+    embeddings, labels = extract_embeddings(model, dataloader, device)
+
+    # Convert embeddings to float32 for Faiss
+    embeddings = embeddings.astype(np.float32)
+    
+    # Build the Faiss index
+    index = faiss.IndexFlatL2(embeddings.shape[1])  # Use L2 distance
+    index.add(embeddings)  # Add embeddings to the index
+
+    # Perform search
+    D, I = index.search(embeddings, k+1)  # Search for the 2 nearest neighbors (includes the point itself)
+
+    # Compute Recall@k
+    recall_at_k = 0
     for i in range(len(labels)):
-        if labels[i] in labels[nearest_neighbors[i]]:
-            recalls += 1
-    return recalls / len(labels)
+        if labels[i] in labels[I[i][1:k+1]]:  # Check if the closest neighbor (excluding itself) has the same label
+            recall_at_k += 1
+    recall_at_k /= len(labels)
+    
+    return recall_at_k
 
 
 def lr_lambda(epoch):
